@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abdo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --main-bg-color: #0c0c0c;
+    --secondary-bg-color: #1a1a1a;
+    --text-color: #a0a0a0;
+    --hover-color: #ffffff;
+    --button-color: #333333;
+    --button-hover-color: #555555;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Cairo', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    transition: background 0.5s ease-in-out;
+  }
+  
+  #snowCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+  }
+
+  .dark-text {
+    font-size: clamp(30px, 7vw, 55px);
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.4;
+    color: var(--text-color);
+    animation: fade 4s infinite alternate;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.3s ease, opacity 0.5s ease;
+    z-index: 1;
+    user-select: none;
+  }
+  
+  @keyframes fade {
+    0% {color: #7a7a7a;}
+    100% {color: #c0c0c0;}
+  }
+  
+  #discordButton {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--button-color);
+    color: var(--text-color);
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 8px;
+    z-index: 1000;
+    animation: buttonFade 2s infinite;
+    box-shadow: 0 0 5px var(--button-color);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  
+  #discordButton:hover {
+    background-color: var(--button-hover-color);
+    box-shadow: 0 0 10px var(--button-hover-color);
+    transform: scale(1.05);
+  }
+  
+  @keyframes buttonFade {
+    0% {opacity: 0.7;}
+    50% {opacity: 1;}
+    100% {opacity: 0.7;}
+  }
+</style>
+</head>
+<body>
+
+<button id="discordButton" onclick="window.open('https://discordapp.com/users/1314245472428494968', '_blank')">Abdo Acc</button>
+
+<canvas id="snowCanvas"></canvas>
+<div class="dark-text" id="neonText">آلضلمة الي فـ عالمنآ قادرة تبلع اي نـور</div>
+<audio id="explosionSound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-heavy-bomb-explosion-2442.mp3"></audio>
+
+<script>
+  const canvas = document.getElementById('snowCanvas');
+  const ctx = canvas.getContext('2d');
+  const body = document.body;
+  
+  const neonText = document.getElementById('neonText');
+  const explosionSound = document.getElementById('explosionSound');
+
+  const initialText = "آلضلمة الي فـ عالمنآ قادرة تبلع اي نـور";
+  const textAndImages = [
+    { text: "الأندآل ، في عين بعض جدع ـآن", image: "https://images.unsplash.com/photo-1549419168-f9e4f55f606e?q=80&w=1974&auto=format&fit=crop" },
+    { text: "الدم لا يُغسل إلا بالدم", image: "https://images.unsplash.com/photo-1558285511-739c91b5c401?q=80&w=1974&auto=format&fit=crop" },
+    { text: "السقوط مش عجز ، ده بداية مشوار", image: "https://images.unsplash.com/photo-1542171249-f9c7e0c99a67?q=80&w=1974&auto=format&fit=crop" },
+    { text: "نُحن الذنوب ، التي لا تغفر", image: "https://images.unsplash.com/photo-1510405290615-5858c42a5c4e?q=80&w=1974&auto=format&fit=crop" },
+    { text: "لا مُحال ان لا مثيل لي علي اَي حال", image: "https://images.unsplash.com/photo-1506744038136-413e1176e61f?q=80&w=1974&auto=format&fit=crop" },
+    { text: "صاحبك لو خان، الزمن هيعلّمك الإيمان", image: "https://images.unsplash.com/photo-1524164167191-2371900350d2?q=80&w=1974&auto=format&fit=crop" },
+    { text: "فآࢪقلي", image: "https://images.unsplash.com/photo-1543886566-b33df0ac24ae?q=80&w=1974&auto=format&fit=crop" },
+    { text: "تآلمت ڪثيرا بـسببك ولم ﭑ‏؏ـد ﭑشـ‏؏ـر", image: "https://images.unsplash.com/photo-1554906915-18d506d87e02?q=80&w=1974&auto=format&fit=crop" },
+    { text: "حُب هآن صَآحب خآن دُنيآ ملهآش ام ـآن", image: "https://images.unsplash.com/photo-1517999818817-f584e27f0580?q=80&w=1974&auto=format&fit=crop" },
+    { text: "بلح ـس شفآيف آلـ سيجـآرة", image: "https://images.unsplash.com/photo-1598282361730-1798e22822a5?q=80&w=1974&auto=format&fit=crop" },
+    { text: "آنآ هوآ آلـفتي آلرآئع", image: "https://images.unsplash.com/photo-1560943960-a292419a5840?q=80&w=1974&auto=format&fit=crop" },
+    { text: "عـجلة آلدنيآ داࢪت ، وآنآ آلـمختآر", image: "https://images.unsplash.com/photo-1587820464673-82a933f9b2d2?q=80&w=1974&auto=format&fit=crop" },
+    { text: "فين وُعودک يـ جآحد عهُودک", image: "https://images.unsplash.com/photo-1606880315344-96d5b94f18f9?q=80&w=1974&auto=format&fit=crop" },
+    { text: "آنآ آلـ مُشتآق وآنت آلـ غآئب ، انت آلـ متمسک وآنآ آلـ سآيب", image: "https://images.unsplash.com/photo-1563725585523-28f4955b9a89?q=80&w=1974&auto=format&fit=crop" },
+    { text: "يآ آعيش الدنيآآ زي م آنآ عاوز ، يآ آمآ مش هعيشکک يـ دنيآآ", image: "https://images.unsplash.com/photo-1502699252328-3b10c66099ae?q=80&w=1974&auto=format&fit=crop" },
+    { text: "Fourty of my kindred died", image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1974&auto=format&fit=crop" },
+    { text: "Calm mind", image: "https://images.unsplash.com/photo-1473172707857-f9e276582ab6?q=80&w=1974&auto=format&fit=crop" },
+    { text: "strong spirit", image: "https://images.unsplash.com/photo-1528698827591-e19bad043006?q=80&w=1974&auto=format&fit=crop" },
+    { text: "loyal heart", image: "https://images.unsplash.com/photo-1509982498239-66c5d648b789?q=80&w=1974&auto=format&fit=crop" }
+  ];
+  
+  let currentTextIndex = 0;
+  let isFirstClick = true;
+
+  const snowSettings = {
+    count: 500,
+    minRadius: 1,
+    maxRadius: 3,
+    minSpeed: 0.5,
+    maxSpeed: 1.5,
+    maxOpacity: 0.6
+  };
+
+  let flakes = [];
+  function createFlakes() {
+    flakes = [];
+    for (let i = 0; i < snowSettings.count; i++) {
+      flakes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * (snowSettings.maxRadius - snowSettings.minRadius) + snowSettings.minRadius,
+        speed: Math.random() * (snowSettings.maxSpeed - snowSettings.minSpeed) + snowSettings.minSpeed,
+        opacity: Math.random() * snowSettings.maxOpacity + 0.2
+      });
+    }
+  }
+
+  function drawSnow() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let f of flakes) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${f.opacity})`;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
+      ctx.fill();
+      f.y += f.speed;
+      f.x += Math.sin(f.y * 0.01) * 0.7;
+      if (f.y > canvas.height) {
+        f.y = -f.radius;
+        f.x = Math.random() * canvas.width;
+      }
+    }
+    requestAnimationFrame(drawSnow);
+  }
+
+  neonText.addEventListener('click', () => {
+    explosionSound.currentTime = 0;
+    explosionSound.play();
+
+    if (isFirstClick) {
+      neonText.style.opacity = 0;
+      body.style.background = "#000000";
+      neonText.textContent = "مش قولتلك؟";
+      
+      setTimeout(() => {
+        neonText.style.opacity = 0;
+        isFirstClick = false;
+        displayNextText(); 
+      }, 500);
+      return;
+    }
+
+    displayNextText();
+  });
+
+  function displayNextText() {
+    let shakeCount = 0;
+    const shakeInterval = setInterval(() => {
+      neonText.style.transform = `translate(${Math.random() * 8 - 4}px, ${Math.random() * 4 - 2}px)`;
+      shakeCount++;
+      if (shakeCount > 10) {
+        clearInterval(shakeInterval);
+        neonText.style.transform = "translate(0, 0)";
+      }
+    }, 40);
+
+    neonText.style.opacity = 0;
+    setTimeout(() => {
+      if (currentTextIndex < textAndImages.length) {
+        neonText.textContent = textAndImages[currentTextIndex].text;
+        body.style.backgroundImage = `url(${textAndImages[currentTextIndex].image})`;
+        body.style.backgroundSize = 'cover';
+        body.style.backgroundPosition = 'center';
+        
+        neonText.style.color = 'var(--hover-color)';
+        setTimeout(() => { neonText.style.color = 'var(--text-color)'; }, 700);
+        currentTextIndex++;
+      } else {
+        neonText.textContent = initialText;
+        body.style.backgroundImage = 'none';
+        body.style.background = 'radial-gradient(ellipse at center, var(--secondary-bg-color) 0%, var(--main-bg-color) 100%)';
+        currentTextIndex = 0;
+        isFirstClick = true;
+      }
+      neonText.style.opacity = 1;
+    }, 500);
+  }
+
+  function preloadImages() {
+    textAndImages.forEach(item => {
+      const img = new Image();
+      img.src = item.image;
+    });
+  }
+
+  function init() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    createFlakes();
+    drawSnow();
+    preloadImages();
+  }
+  
+  window.addEventListener('load', init);
+  window.addEventListener('resize', init);
+</script>
+</body>
+  </html>
+  
