@@ -9,10 +9,14 @@
   :root {
     --main-bg-color: #0c0c0c;
     --secondary-bg-color: #1a1a1a;
-    --text-color: #a0a0a0;
+    --text-color: #c0c0c0;
     --hover-color: #ffffff;
     --button-color: #333333;
     --button-hover-color: #555555;
+  }
+  
+  * {
+    box-sizing: border-box;
   }
   
   body {
@@ -23,10 +27,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-    transition: background 0.5s ease-in-out;
+    min-height: 100vh;
+    height: 100%;
+    background: radial-gradient(ellipse at center, var(--secondary-bg-color) 0%, var(--main-bg-color) 100%);
+    transition: background 0.3s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   
   #snowCanvas {
@@ -37,9 +43,17 @@
     height: 100%;
     z-index: -2;
   }
-
+  
+  .text-container {
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
   .dark-text {
-    font-size: clamp(30px, 7vw, 55px);
+    font-size: clamp(24px, 6vw, 55px);
     font-weight: 800;
     text-align: center;
     line-height: 1.4;
@@ -50,6 +64,9 @@
     transition: transform 0.3s ease, opacity 0.5s ease;
     z-index: 1;
     user-select: none;
+    margin: 0;
+    padding: 15px;
+    word-wrap: break-word;
   }
   
   @keyframes fade {
@@ -59,19 +76,28 @@
   
   #discordButton {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: 15px;
+    right: 15px;
     background-color: var(--button-color);
     color: var(--text-color);
     border: none;
-    padding: 15px 30px;
-    font-size: 18px;
+    padding: 12px 20px;
+    font-size: 16px;
     cursor: pointer;
     border-radius: 8px;
     z-index: 1000;
     animation: buttonFade 2s infinite;
     box-shadow: 0 0 5px var(--button-color);
     transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  
+  @media (max-width: 480px) {
+    #discordButton {
+      padding: 10px 15px;
+      font-size: 14px;
+      top: 10px;
+      right: 10px;
+    }
   }
   
   #discordButton:hover {
@@ -85,6 +111,74 @@
     50% {opacity: 1;}
     100% {opacity: 0.7;}
   }
+  
+  /* New appearance effects */
+  @keyframes textGlow {
+    0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
+    50% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+    100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
+  }
+  
+  @keyframes scaleIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  @keyframes slideIn {
+    0% { transform: translateY(30px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  
+  @keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .text-effect-glow {
+    animation: textGlow 2s ease-in-out;
+  }
+  
+  .text-effect-scale {
+    animation: scaleIn 0.5s ease-out;
+  }
+  
+  .text-effect-slide {
+    animation: slideIn 0.7s ease-out;
+  }
+  
+  .text-effect-typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typewriter 1.5s steps(40, end);
+  }
+  
+  .text-effect-fade {
+    animation: fadeIn 1s ease-out;
+  }
+  
+  .particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+  }
+  
+  @keyframes particleAnimation {
+    0% {
+      transform: translate(0, 0) scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(var(--tx), var(--ty)) scale(1);
+      opacity: 0;
+    }
+  }
 </style>
 </head>
 <body>
@@ -92,45 +186,58 @@
 <button id="discordButton" onclick="window.open('https://discordapp.com/users/1314245472428494968', '_blank')">Abdo Acc</button>
 
 <canvas id="snowCanvas"></canvas>
-<div class="dark-text" id="neonText">آلضلمة الي فـ عالمنآ قادرة تبلع اي نـور</div>
+<div class="text-container">
+  <div class="dark-text" id="neonText">آلضلمة الي فـ عالمنآ قادرة تبلع اي نـور</div>
+</div>
 <audio id="explosionSound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-heavy-bomb-explosion-2442.mp3"></audio>
+
+<audio id="bgm1" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-carma.mp3"></audio>
+<audio id="bgm2" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-who-am-i.mp3"></audio>
+<audio id="bgm3" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-abdo.mp3"></audio>
 
 <script>
   const canvas = document.getElementById('snowCanvas');
   const ctx = canvas.getContext('2d');
-  const body = document.body;
   
   const neonText = document.getElementById('neonText');
   const explosionSound = document.getElementById('explosionSound');
 
   const initialText = "آلضلمة الي فـ عالمنآ قادرة تبلع اي نـور";
-  const textAndImages = [
-    { text: "الأندآل ، في عين بعض جدع ـآن", image: "https://i.imgur.com/k9b8ZzM.jpeg" },
-    { text: "الدم لا يُغسل إلا بالدم", image: "https://i.imgur.com/qL8s0mH.jpeg" },
-    { text: "السقوط مش عجز ، ده بداية مشوار", image: "https://i.imgur.com/6D8h23n.jpeg" },
-    { text: "نُحن الذنوب ، التي لا تغفر", image: "https://i.imgur.com/tY7g8D6.jpeg" },
-    { text: "لا مُحال ان لا مثيل لي علي اَي حال", image: "https://i.imgur.com/83j1481.jpeg" },
-    { text: "صاحبك لو خان، الزمن هيعلّمك الإيمان", image: "https://i.imgur.com/W2d5w4O.jpeg" },
-    { text: "فآࢪقلي", image: "https://i.imgur.com/G5g2d9X.jpeg" },
-    { text: "تآلمت ڪثيرا بـسببك ولم ﭑ‏؏ـد ﭑشـ‏؏ـر", image: "https://i.imgur.com/vHqjHnS.jpeg" },
-    { text: "حُب هآن صَآحب خآن دُنيآ ملهآش ام ـآن", image: "https://i.imgur.com/uW98yB7.jpeg" },
-    { text: "بلح ـس شفآيف آلـ سيجـآرة", image: "https://i.imgur.com/T0fM5uE.jpeg" },
-    { text: "آنآ هوآ آلـفتي آلرآئع", image: "https://i.imgur.com/V7R0l9N.jpeg" },
-    { text: "عـجلة آلدنيآ داࢪت ، وآنآ آلـمختآر", image: "https://i.imgur.com/vW4P2W0.jpeg" },
-    { text: "فين وُعودک يـ جآحد عهُودک", image: "https://i.imgur.com/f0uU6lM.jpeg" },
-    { text: "آنآ آلـ مُشتآق وآنت آلـ غآئب ، انت آلـ متمسک وآنآ آلـ سآيب", image: "https://i.imgur.com/h5vV8nE.jpeg" },
-    { text: "يآ آعيش الدنيآآ زي م آنآ عاوز ، يآ آمآ مش هعيشکک يـ دنيآآ", image: "https://i.imgur.com/Yw1i0w2.jpeg" },
-    { text: "Fourty of my kindred died", image: "https://i.imgur.com/hK8bQfU.jpeg" },
-    { text: "Calm mind", image: "https://i.imgur.com/8l10q5D.jpeg" },
-    { text: "strong spirit", image: "https://i.imgur.com/6J7jDqR.jpeg" },
-    { text: "loyal heart", image: "https://i.imgur.com/9v8X0sK.jpeg" }
+  const texts = [
+    "الأندآل ، في عين بعض جدع ـآن",
+    "الدم لا يُغسل إلا بالدم",
+    "السقوط مش عجز ، ده بداية مشوار",
+    "نُحن الذنوب ، التي لا تغفر",
+    "لا مُحال ان لا مثيل لي علي اَي حال",
+    "صاحبك لو خان، الزمن هيعلّمك الإيمان",
+    "فآࢪقلي",
+    "تآلمت ڪثيرا بـسببك ولم ﭑ‏؏ـد ﭑشـ‏؏ـر",
+    "حُب هآن صَآحب خآن دُنيآ ملهآش ام ـآن",
+    "بلح ـس شفآيف آلـ سيجـآرة",
+    "آنآ هوآ آلـفتي آلرآئع",
+    "عـجلة آلدنيآ داࢪت ، وآنآ آلـمختآر",
+    "فين وُعودک يـ جآحد عهُودک",
+    "آنآ آلـ مُشتآق وآنت آلـ غآئب ، آنت آلـ متمسک وآنآ آلـ سآيب",
+    "يآ آعيش الدنيآآ زي م آنآ عاوز ، يآ آمآ مش هعيشکک يـ دنيآآ",
+    "Fourty of my kindred died",
+    "Calm mind",
+    "strong spirit",
+    "loyal heart"
+  ];
+  
+  const textEffects = [
+    'text-effect-glow',
+    'text-effect-scale',
+    'text-effect-slide',
+    'text-effect-typewriter',
+    'text-effect-fade'
   ];
   
   let currentTextIndex = 0;
   let isFirstClick = true;
 
   const snowSettings = {
-    count: 500,
+    count: 300,
     minRadius: 1,
     maxRadius: 3,
     minSpeed: 0.5,
@@ -141,7 +248,9 @@
   let flakes = [];
   function createFlakes() {
     flakes = [];
-    for (let i = 0; i < snowSettings.count; i++) {
+    const count = window.innerWidth < 768 ? Math.floor(snowSettings.count * 0.7) : snowSettings.count;
+    
+    for (let i = 0; i < count; i++) {
       flakes.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -169,25 +278,75 @@
     requestAnimationFrame(drawSnow);
   }
 
-  neonText.addEventListener('click', () => {
+  function createParticles(x, y) {
+    const particleCount = 30;
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      document.body.appendChild(particle);
+      
+      const size = Math.random() * 5 + 2;
+      const angle = Math.random() * Math.PI * 2;
+      const distance = Math.random() * 100 + 50;
+      
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+      
+      const tx = Math.cos(angle) * distance;
+      const ty = Math.sin(angle) * distance;
+      
+      particle.style.setProperty('--tx', `${tx}px`);
+      particle.style.setProperty('--ty', `${ty}px`);
+      
+      particle.style.animation = `particleAnimation 0.8s ease-out forwards`;
+      
+      setTimeout(() => {
+        document.body.removeChild(particle);
+      }, 800);
+    }
+  }
+
+  neonText.addEventListener('click', (e) => {
+    const rect = neonText.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    
+    createParticles(x, y);
     explosionSound.currentTime = 0;
     explosionSound.play();
 
     if (isFirstClick) {
       neonText.style.opacity = 0;
-      body.style.background = "#000000";
+      document.body.style.background = "#000000";
       neonText.textContent = "مش قولتلك؟";
       
       setTimeout(() => {
         neonText.style.opacity = 0;
+        document.body.style.background = 'radial-gradient(ellipse at center, var(--secondary-bg-color) 0%, var(--main-bg-color) 100%)';
         isFirstClick = false;
         displayNextText(); 
-      }, 500);
+      }, 500); 
       return;
     }
 
     displayNextText();
   });
+
+  function applyRandomEffect() {
+  
+    textEffects.forEach(effect => {
+      neonText.classList.remove(effect);
+    });
+    
+    const randomEffect = textEffects[Math.floor(Math.random() * textEffects.length)];
+    neonText.classList.add(randomEffect);
+    
+    setTimeout(() => {
+      neonText.classList.remove(randomEffect);
+    }, 2000);
+  }
 
   function displayNextText() {
     let shakeCount = 0;
@@ -202,19 +361,20 @@
 
     neonText.style.opacity = 0;
     setTimeout(() => {
-      if (currentTextIndex < textAndImages.length) {
-        neonText.textContent = textAndImages[currentTextIndex].text;
-        body.style.backgroundImage = `url(${textAndImages[currentTextIndex].image})`;
-        body.style.backgroundSize = 'cover';
-        body.style.backgroundPosition = 'center';
-        
+      if (currentTextIndex < texts.length) {
+        neonText.textContent = texts[currentTextIndex];
         neonText.style.color = 'var(--hover-color)';
-        setTimeout(() => { neonText.style.color = 'var(--text-color)'; }, 700);
+        
+        setTimeout(() => {
+          applyRandomEffect();
+        }, 50);
+        
+        setTimeout(() => { 
+          neonText.style.color = 'var(--text-color)'; 
+        }, 700);
         currentTextIndex++;
       } else {
         neonText.textContent = initialText;
-        body.style.backgroundImage = 'none';
-        body.style.background = 'radial-gradient(ellipse at center, var(--secondary-bg-color) 0%, var(--main-bg-color) 100%)';
         currentTextIndex = 0;
         isFirstClick = true;
       }
@@ -222,11 +382,10 @@
     }, 500);
   }
 
-  function preloadImages() {
-    textAndImages.forEach(item => {
-      const img = new Image();
-      img.src = item.image;
-    });
+  function playRandomMusic() {
+      const musicPlayers = document.querySelectorAll('audio[id^="bgm"]');
+      const randomIndex = Math.floor(Math.random() * musicPlayers.length);
+      musicPlayers[randomIndex].play();
   }
 
   function init() {
@@ -234,11 +393,21 @@
     canvas.height = window.innerHeight;
     createFlakes();
     drawSnow();
-    preloadImages();
+    playRandomMusic();
   }
   
   window.addEventListener('load', init);
   window.addEventListener('resize', init);
+  
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', function (event) {
+    const now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+      event.preventDefault();
+    }
+    lastTouchEnd = now;
+  }, false);
 </script>
 </body>
-</html>
+  </html>
+  
